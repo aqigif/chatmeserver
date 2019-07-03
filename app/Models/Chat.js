@@ -4,10 +4,8 @@
 const Model = use('Model')
 
 class Chat extends Model {
-    rooms () {
-      return this
-      .belongsToMany('App/Models/Room')
-      .pivotTable('chat_rooms')
+    user () {
+      return this.belongsTo('App/Models/User')
     }
 }
 

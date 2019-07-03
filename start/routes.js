@@ -14,4 +14,8 @@ Route.group(() => {
     Route.post('users', 'UserController.register').middleware(['auth:jwt'])
     Route.patch('users/:id', 'UserController.update').middleware(['auth:jwt'])
     Route.delete('users/:id', 'UserController.delete').middleware(['auth:jwt'])
+
+    Route.get('rooms', 'RoomController.index').middleware(['auth:jwt'])
+
+    Route.get('chats', 'ChatController.index').middleware(['auth:jwt'])
 }).prefix('api/v1')
