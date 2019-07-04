@@ -30,6 +30,13 @@ class UserSeeder {
     u2.password = 'mypass'
     u2.avatar = "ourPic.gif"
     await u2.save()
+    
+    const u3 = new User()
+    u3.name = 'aqiGif'
+    u3.phoneNumber = '0999'
+    u3.password = 'mypass'
+    u3.avatar = "ourPic.gif"
+    await u3.save()
   }
 }
 

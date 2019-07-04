@@ -16,9 +16,17 @@ class RoomController {
 
   async create({ request, response, view }) {}
 
-  async store({ request, response }) {}
+  async store({ request, response }) {
+  }
 
-  async show({ params, request, response, view }) {}
+  async show({ params, request, response, view }) {
+    try {
+      const room = await Room.query().with("chats.user").where('id',params.id).fetch()
+      return response.status(200).send(room) 
+    } catch (error) {
+      return response.status(error.status).send(error)
+    }
+  }
 
   async edit({ params, request, response, view }) {}
 

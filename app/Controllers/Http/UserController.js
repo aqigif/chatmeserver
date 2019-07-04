@@ -20,7 +20,7 @@ class UserController {
     }
   }
 
-  async register({ request, response }) {
+  async create({ request, response }) {
     try {
       const data = request.only(["name", "phoneNumber", "password", "avatar"])
       const userExists = await User.findBy("phoneNumber", data.phoneNumber)

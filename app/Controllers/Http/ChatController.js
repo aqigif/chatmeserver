@@ -13,7 +13,19 @@ class ChatController {
     }
   }
 
-  async create ({ request, response, view }) {
+  async create({ request, response, auth }) {
+    try {
+      const chat = new Chat()
+      chat.message = request.input('message')
+      chat.room_id = request.input('room_id')
+      chat.user_id = auth.user.id
+      await chat.save()
+      return response.status(201).send(chat)
+    } catch (error) {
+       return response.status(400).send({
+         message: 'Something went wrong!'
+       })
+    }
   }
 
   async store ({ request, response }) {

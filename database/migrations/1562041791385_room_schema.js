@@ -8,6 +8,7 @@ class RoomSchema extends Schema {
     this.create('rooms', (table) => {
       table.increments()
       table.string('name', 254).notNullable()
+      table.text('avatar').notNullable()
       table.boolean('type').notNullable()
       table.timestamps()
     })
