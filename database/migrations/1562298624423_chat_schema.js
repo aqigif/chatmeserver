@@ -8,12 +8,12 @@ class ChatSchema extends Schema {
     this.create('chats', (table) => {
       table.increments()
       table.text('message').notNullable()
-      table.integer('room_id').unsigned().references('id').inTable('rooms')
+      table.boolean('is_read').notNullable()
       table.integer('user_id').unsigned().references('id').inTable('users')
+      table.integer('conversation_id').unsigned().references('id').inTable('conversations')
       table.timestamps()
     })
   }
-
   down () {
     this.drop('chats')
   }

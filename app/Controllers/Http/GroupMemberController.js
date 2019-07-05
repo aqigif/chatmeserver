@@ -5,12 +5,12 @@
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
 /**
- * Resourceful controller for interacting with chats
+ * Resourceful controller for interacting with groupmembers
  */
-class ChatController {
+class GroupMemberController {
   /**
-   * Show a list of all chats.
-   * GET chats
+   * Show a list of all groupmembers.
+   * GET groupmembers
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -21,8 +21,8 @@ class ChatController {
   }
 
   /**
-   * Render a form to be used for creating a new chat.
-   * GET chats/create
+   * Render a form to be used for creating a new groupmember.
+   * GET groupmembers/create
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -33,8 +33,8 @@ class ChatController {
   }
 
   /**
-   * Create/save a new chat.
-   * POST chats
+   * Create/save a new groupmember.
+   * POST groupmembers
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -44,8 +44,8 @@ class ChatController {
   }
 
   /**
-   * Display a single chat.
-   * GET chats/:id
+   * Display a single groupmember.
+   * GET groupmembers/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -56,8 +56,8 @@ class ChatController {
   }
 
   /**
-   * Render a form to update an existing chat.
-   * GET chats/:id/edit
+   * Render a form to update an existing groupmember.
+   * GET groupmembers/:id/edit
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -68,8 +68,8 @@ class ChatController {
   }
 
   /**
-   * Update chat details.
-   * PUT or PATCH chats/:id
+   * Update groupmember details.
+   * PUT or PATCH groupmembers/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -79,8 +79,8 @@ class ChatController {
   }
 
   /**
-   * Delete a chat with id.
-   * DELETE chats/:id
+   * Delete a groupmember with id.
+   * DELETE groupmembers/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -90,4 +90,4 @@ class ChatController {
   }
 }
 
-module.exports = ChatController
+module.exports = GroupMemberController
