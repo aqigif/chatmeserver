@@ -1,33 +1,36 @@
 "use strict";
 
-class AuthController {
-  async login({ request, auth }) {
-    const { phoneNumber, password } = request.all();
-    return auth
-      .authenticator("jwt")
-      .withRefreshToken()
-      .attempt(phoneNumber, password);
-  }
+const User = use("App/Models/User");
 
-  async register({ request, response }) {
+class AuthController {
+  async login({ request, auth, response }) {
+    const { phoneNumber, password } = request.only(["phoneNumber", "password"]);
     try {
-      const data = request.only(["name", "phoneNumber", "password", "avatar"]);
-      const userExists = await User.findBy("phoneNumber", data.phoneNumber);
-      if (userExists) {
-        return response
-          .status(400)
-          .send({ message: { error: "User already registered" } });
-      }
-      const user = await User.create(data);
-      return response.status(201).send(user);
+      await auth.attempt(phoneNumber, password);
+
+      const user = await User.findBy("phoneNumber", phoneNumber);
+      let token = await auth.generate(user);
+
+      response.send({
+        user: user,
+        accessToken: token
+      });
     } catch (error) {
-      return response.status(error.status).send(error);
+      response.status(400).send({
+        message: "something went wrong"
+      });
+      console.log(error);
     }
   }
 
-  async profile({ response, auth }) {
-    const user = await auth.getUser();
-    return response.send(user);
+  async logout({ auth, response }) {
+    try {
+      const logout = await auth.logout();
+      response.send({ message: "berhasil logout" });
+    } catch (error) {
+      response.status().send({ message: "berhasil logout" });
+      console.log(error);
+    }
   }
 }
 

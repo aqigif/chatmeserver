@@ -1,93 +1,82 @@
-'use strict'
+"use strict";
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
+const Conversation = use("App/Models/Conversation");
 
-/**
- * Resourceful controller for interacting with conversations
- */
 class ConversationController {
-  /**
-   * Show a list of all conversations.
-   * GET conversations
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, view }) {
+  async store({ request, response, auth }) {
+    try {
+      const getUser = await auth.getUser();
+      const { type, partner } = request.only(["type", "partner"]);
+      const conversationData = { type, partner, user_id: getUser.id };
+      const conversation = await Conversation.create(conversationData);
+      response.send(conversation);
+    } catch (error) {
+      response.status(400).send({
+        message: "error"
+      });
+      console.log(err);
+    }
   }
 
-  /**
-   * Render a form to be used for creating a new conversation.
-   * GET conversations/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+  async destroy({ params, request, response }) {
+    try {
+      const conversation = await Conversation.find(params.id);
+      const destroy = conversation.delete();
+
+      response.send({ message: "success" });
+      console.log(destroy);
+    } catch (error) {
+      response.status(400).send({ message: "error" });
+      console.log(error);
+    }
   }
 
-  /**
-   * Create/save a new conversation.
-   * POST conversations
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, response }) {
-  }
+  async chats({ params, request, response, auth }) {
+    try {
+      const getUser = await auth.getUser();
 
-  /**
-   * Display a single conversation.
-   * GET conversations/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async show ({ params, request, response, view }) {
-  }
+      const conversation = await Conversation.find(params.id);
 
-  /**
-   * Render a form to update an existing conversation.
-   * GET conversations/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
+      const detail_conversation = await Conversation.query()
+        .select(
+          "conversations.id",
+          "conversations.type",
+          "conversations.created_at as timestamp",
+          "conversations.partner as partner_id",
+          "users.name as partner",
+          "conversations.group_id",
+          "groups.name as group"
+        )
+        .leftJoin("users", "users.id", "conversations.partner")
+        .leftJoin("groups", "groups.id", "conversations.group_id")
+        .where("conversations.id", params.id)
+        .fetch();
 
-  /**
-   * Update conversation details.
-   * PUT or PATCH conversations/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update ({ params, request, response }) {
-  }
+      const chats = await conversation
+        .chat()
+        .select(
+          "chats.id",
+          "chats.user_id",
+          "chats.message",
+          "chats.is_read",
+          "chats.created_at as timestamp",
+          "users.name as sender"
+        )
+        .innerJoin("users", "users.id", "chats.user_id")
+        .fetch();
 
-  /**
-   * Delete a conversation with id.
-   * DELETE conversations/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async destroy ({ params, request, response }) {
+      response.send({
+        conversation: detail_conversation,
+        chats: chats,
+        myId: getUser.id
+      });
+    } catch (error) {
+      response.status(400).send({
+        messsage: "error"
+      });
+      console.log(error);
+    }
   }
 }
 
-module.exports = ConversationController
+module.exports = ConversationController;

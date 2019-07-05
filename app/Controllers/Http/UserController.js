@@ -1,76 +1,57 @@
-"use strict"
-const User = use("App/Models/User")
+"use strict";
+
+const User = use("App/Models/User");
+const Database = use("Database");
 
 class UserController {
-  async index({ response }) {
+  async index({ request, response, auth }) {
     try {
-      let users = await User.all()
-      return response.status(200).send(users)
-    } catch (error) {
-      return response.status(error.status).send(error)
+      const getUser = await auth.getUser();
+      const users = await User.query()
+        .select("id", "name", "username")
+        .whereNot("id", getUser.id)
+        .orderBy("name", "ASC")
+        .fetch();
+
+      response.send(users);
+    } catch (err) {
+      response.status(400).send({
+        message: "error"
+      });
+      console.log(err);
     }
   }
 
-  async show({ params, response }) {
+  async conversation({ params, request, response, view, auth }) {
     try {
-      const user = await User.find(params.id)
-      return response.status(200).send(user) 
-    } catch (error) {
-      return response.status(error.status).send(error)
-    }
-  }
+      const getUser = await auth.getUser();
 
-  async create({ request, response }) {
-    try {
-      const data = request.only(["name", "phoneNumber", "password", "avatar"])
-      const userExists = await User.findBy("phoneNumber", data.phoneNumber)
-      if (userExists) {
-        return response
-          .status(400)
-          .send({ message: { error: "User already registered" } })
-      }
-      const user = await User.create(data)
-      return response.status(201).send(user)
-    } catch (error) {
-      return response.status(error.status).send(error)
-    }
-  }
+      const user = await User.find(getUser.id);
+      const conversation = await user
+        .conversations()
+        .select(
+          "conversations.id",
+          "conversations.type",
+          "conversations.created_at as timestamp",
+          "users.name as partner",
+          "groups.name as group"
+        )
+        .leftJoin("users", "users.id", "conversations.partner")
+        .leftJoin("groups", "groups.id", "conversations.group_id")
+        .orderBy("id", "desc")
+        .with("chat", builder => {
+          builder.orderBy("id", "desc");
+        })
+        .fetch();
 
-  async update({ params, request, response }) {
-    try {
-      const userInfo = request.only([
-        "name",
-        "phoneNumber",
-        "password",
-        "avatar"
-      ])
-      const user = await User.find(params.id)
-      if (!user) {
-        return response.status(404).send({ data: "Resource not found" })
-      }
-      user.name = userInfo.name
-      user.phoneNumber = userInfo.phoneNumber
-      user.password = userInfo.password
-      user.avatar = userInfo.avatar
-      await user.save()
-      return response.status(202).send(user)
-    } catch (error) {
-      return response.status(error.status).send(error)
-    }
-  }
-
-  async delete({ params, response }) {
-    try {
-      const user = await User.find(params.id)
-      if (!user) {
-        return response.status(404).json({ data: "Resource not found" })
-      }
-      await user.delete()
-      return response.status(200).send({ message: "User deleted" })
-    } catch (error) {
-      return response.status(error.status).send(error)
+      response.send(conversation);
+    } catch (err) {
+      response.status(400).send({
+        message: "error"
+      });
+      console.log(err);
     }
   }
 }
 
-module.exports = UserController
+module.exports = UserController;

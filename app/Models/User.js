@@ -35,8 +35,11 @@ class User extends Model {
     return this.hasMany('App/Models/Token')
   }
 
-  chats () {
-    return this.hasMany('App/Models/Chat')
+  conversations() {
+    return this.hasMany('App/Models/Conversation')
+  }
+  group() {
+    return this.belongsToMany('App/models/Group')
   }
     
 }
